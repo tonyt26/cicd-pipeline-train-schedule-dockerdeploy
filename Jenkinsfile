@@ -4,7 +4,7 @@ def cancelPreviousBuilds(jobName) {
     def currentJob = Jenkins.instance.getItemByFullName(jobName)
     
     echo currentBranch
-    echo 
+    echo currentJob
  // Loop through all instances of this particular job/branch
     for (def build : currentJob.builds) {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
