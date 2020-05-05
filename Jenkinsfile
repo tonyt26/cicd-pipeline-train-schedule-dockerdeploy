@@ -1,10 +1,12 @@
 def cancelPreviousBuilds() {
-    def jobName = env.JOB_NAME
+    //def jobName = env.JOB_NAME
+    def jobName = env.getEnvironment().get('JOB_NAME')
     def currentBranch = env.BRANCH_NAME
     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
     def currentJob = Jenkins.instance.getItemByFullName(jobName)
-    def currentCommitID = env.GIT_COMMIT
-    def prevCommitID = env.GIT_PREVIOUS_COMMIT
+    
+    echo "Current Job - Instance.getItemByFullName: ${currentJob}"
+    echo "Current Job - getEnvironment.get('JOB_NAME'): ${jobName}"
     
     echo "Current Job Name: ${currentJob}"
     echo "Current Branch Name: ${currentBranch}"
