@@ -1,5 +1,5 @@
-def cancelPreviousBuilds() {
-    def jobName = env.JOB_NAME
+def cancelPreviousBuilds(currentCommitID, prevCommitID, jobName) {
+    //def jobName = env.JOB_NAME
     def currentBranch = env.BRANCH_NAME
     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
     def currentJob = Jenkins.instance.getItemByFullName(jobName)
@@ -7,8 +7,10 @@ def cancelPreviousBuilds() {
     //echo $currentBranch
     echo "Current Job Name: ${currentJob}"
     echo "Current Branch Name: ${currentBranch}"
+    echo "Current Commit ID: ${currentCommitID}"
+    echo "Previous Commit ID: ${prevCommitID}"
     for (def build : currentJob.builds) {
-        if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
+        if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber) && (currentCommitID != previousCommitID)) {
         echo "Older build still queued. Sending kill signal to build number: ${build.number}"
         build.doStop()
         }
@@ -19,8 +21,15 @@ pipeline {
     agent any
     stages {
         stage('Kill old builds - Branch 2') {
+            parameters {
+              string(name: 'currentCommitID', description: 'Current Commit ID', defaultValue: "${env.GIT_COMMIT}")
+              string(name: 'prevCommitID', description: 'Previous Commit ID', defaultValue: "${env.GIT_PREVIOUS_COMMIT}")
+              string(name: 'jobName', description: 'jobName', defaultValue: "${env.JOB_NAME}")
+            }
             steps {
-                   cancelPreviousBuilds()
+                echo currentCommitID
+                echo prevCommitID
+                cancelPreviousBuilds(currentCommitID, prevCommitID, jobName)
             }
         }
         stage('Build') {
