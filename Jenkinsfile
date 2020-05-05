@@ -1,10 +1,30 @@
+def cancelPreviousBuilds() {
+    def jobName = env.JOB_NAME
+    def currentBuildNumber = env.BUILD_NUMBER.toInteger()
+    def currentJob = Jenkins.instance.getItemByFullName(jobName)
+
+ // Loop through all instances of this particular job/branch
+    for (def build : currentJob.builds) {
+        if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
+        echo "Older build still queued. Sending kill signal to build number: ${build.number}"
+        build.doStop()
+        }
+    }
+}
+
 pipeline {
     agent any
     stages {
+        stage('Kill old builds') {
+            steps {
+                   cancelPreviousBuilds()
+            }
+        }
         stage('Build') {
             steps {
                 echo 'Running build automation'
                 sh './gradlew build --no-daemon'
+                sh 'sleep 100'
                 archiveArtifacts artifacts: 'dist/trainSchedule.zip'
             }
         }
@@ -14,7 +34,7 @@ pipeline {
             }
             steps {
                 script {
-                    app = docker.build("ating3/train-schedule")
+                    app = docker.build("willbla/train-schedule")
                     app.inside {
                         sh 'echo $(curl localhost:8080)'
                     }
@@ -27,7 +47,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'docker_hub_login') {
                         app.push("${env.BUILD_NUMBER}")
                         app.push("latest")
                     }
@@ -39,9 +59,9 @@ pipeline {
                 branch 'master'
             }
             steps {
-                //input 'Deploy to Production?'
+                input 'Deploy to Production?'
                 milestone(1)
-                withCredentials([usernamePassword(credentialsId: 'production_server_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'webserver_login', usernameVariable: 'USERNAME', passwordVariable: 'USERPASS')]) {
                     script {
                         sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker pull ating3/train-schedule:${env.BUILD_NUMBER}\""
                         try {
@@ -50,7 +70,7 @@ pipeline {
                         } catch (err) {
                             echo: 'caught error: $err'
                         }
-                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker run --restart always --name train-schedule -p 8080:8080 -d ating3/train-schedule:${env.BUILD_NUMBER}\""
+                        sh "sshpass -p '$USERPASS' -v ssh -o StrictHostKeyChecking=no $USERNAME@$prod_ip \"docker run --restart always --name train-schedule -p 8080:8080 -d willbla/train-schedule:${env.BUILD_NUMBER}\""
                     }
                 }
             }
