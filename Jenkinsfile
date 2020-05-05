@@ -5,7 +5,8 @@ def cancelPreviousBuilds() {
     def currentJob = Jenkins.instance.getItemByFullName(jobName)
     
     //echo $currentBranch
-    echo currentJob
+    echo "Current Job Name: ${currentJob}"
+    echo "Current Branch Name: ${currentBranch}"
     for (def build : currentJob.builds) {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
         echo "Older build still queued. Sending kill signal to build number: ${build.number}"
