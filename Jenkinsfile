@@ -11,7 +11,7 @@ def cancelPreviousBuilds() {
     echo "Current Commit ID: ${currentCommitID}"
     echo "Previous Commit ID: ${prevCommitID}"
     for (def build : currentJob.builds) {
-        if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber) && (currentCommitID != previousCommitID)) {
+        if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber) && (currentCommitID != prevCommitID)) {
         echo "Older build still queued. Sending kill signal to build number: ${build.number}"
         build.doStop()
         }
