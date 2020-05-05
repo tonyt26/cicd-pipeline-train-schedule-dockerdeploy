@@ -1,4 +1,5 @@
-def cancelPreviousBuilds(jobName) {
+def cancelPreviousBuilds() {
+    def jobName = env.JOB_NAME
     def currentBranch = env.BRANCH_NAME
     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
     def currentJob = Jenkins.instance.getItemByFullName(jobName)
@@ -19,7 +20,7 @@ pipeline {
     stages {
         stage('Kill old builds - Branch 2') {
             steps {
-                   cancelPreviousBuilds(env.JOB_NAME)
+                   cancelPreviousBuilds()
             }
         }
         stage('Build') {
