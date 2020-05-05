@@ -1,28 +1,25 @@
-import hudson.model.Result
-import hudson.model.Run
-import jenkins.model.CauseOfInterruption.UserInterruption
+def cancelPreviousBuilds() {
+    def jobName = env.JOB_NAME
+    def currentBuildNumber = env.BUILD_NUMBER.toInteger()
+    def currentJob = Jenkins.instance.getItemByFullName(jobName)
 
-def abortPreviousBuilds() {
-    Run previousBuild = currentBuild.rawBuild.getPreviousBuildInProgress()
-
-    while (previousBuild != null) {
-        if (previousBuild.isInProgress()) {
-            def executor = previousBuild.getExecutor()
-            if (executor != null) {
-                echo ">> Aborting older build #${previousBuild.number}"
-                executor.interrupt(Result.ABORTED, new UserInterruption(
-                    "Aborted by newer build #${currentBuild.number}"
-                ))
-            }
+ // Loop through all instances of this particular job/branch
+    for (def build : currentJob.builds) {
+        if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
+        echo "Older build still queued. Sending kill signal to build number: ${build.number}"
+        build.doStop()
         }
-
-        previousBuild = previousBuild.getPreviousBuildInProgress()
     }
 }
 
 pipeline {
     agent any
     stages {
+        stage('Kill old builds') {
+            steps {
+                   cancelPreviousBuilds()
+            }
+        }
         stage('Build') {
             steps {
                 echo 'Running build automation'
