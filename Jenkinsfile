@@ -14,7 +14,7 @@ def cancelPreviousBuilds() {
 pipeline {
     agent any
     stages {
-        stage('Kill old builds - Commit 1') {
+        stage('Kill old builds - Commit 2') {
             steps {
                 echo "Commit one"
                 cancelPreviousBuilds()
