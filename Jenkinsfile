@@ -3,7 +3,6 @@ def cancelPreviousBuilds() {
     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
     def currentJob = Jenkins.instance.getItemByFullName(jobName)
 
- // Loop through all instances of this particular job/branch
     for (def build : currentJob.builds) {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
         echo "Older build still queued. Sending kill signal to build number: ${build.number}"
@@ -15,9 +14,10 @@ def cancelPreviousBuilds() {
 pipeline {
     agent any
     stages {
-        stage('Kill old builds') {
+        stage('Kill old builds - Commit 1') {
             steps {
-                   cancelPreviousBuilds()
+                echo "Commit one"
+                cancelPreviousBuilds()
             }
         }
         stage('Build') {
