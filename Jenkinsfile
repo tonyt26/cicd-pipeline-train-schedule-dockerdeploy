@@ -22,6 +22,10 @@ def cancelPreviousBuilds() {
 
 pipeline {
     agent any
+    options {
+        disableConcurrentBuilds()
+        timestamps()
+      }
     stages {
         stage('Kill old builds - Branch 2') {
             steps {
