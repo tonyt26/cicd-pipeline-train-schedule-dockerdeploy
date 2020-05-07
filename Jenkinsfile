@@ -10,8 +10,6 @@ def cancelPreviousBuilds() {
     
     echo "Current Job Name: ${currentJob}"
     echo "Current Branch Name: ${currentBranch}"
-    echo "Current Commit ID: ${currentCommitID}"
-    echo "Previous Commit ID: ${prevCommitID}"
     for (def build : currentJob.builds) {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
         echo "Older build still queued. Sending kill signal to build number: ${build.number}"
