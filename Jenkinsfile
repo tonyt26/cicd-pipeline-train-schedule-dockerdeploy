@@ -21,13 +21,14 @@ def cancelPreviousBuilds() {
 pipeline {
     agent any
     options {
-        disableConcurrentBuilds()
+        skipDefaultCheckout true
         timestamps()
       }
     stages {
         stage('Kill old builds - Branch 2') {
             steps {
                 cancelPreviousBuilds()
+                checkout scm
             }
         }
         stage('Build') {
