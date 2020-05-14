@@ -13,11 +13,14 @@ def cancelPreviousBuilds() {
 
 pipeline {
     agent any
+    options {
+        skipDefaultCheckout true
+    }
     stages {
         stage('Kill old builds - Commit 2') {
             steps {
-                echo "Commit one"
                 cancelPreviousBuilds()
+                checkout scm
             }
         }
         stage('Build') {
