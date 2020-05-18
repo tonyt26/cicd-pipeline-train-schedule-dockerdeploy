@@ -6,8 +6,9 @@ def cancelPreviousBuilds() {
     echo "build url: ${env.BUILD_URL}"
     for (def build : currentJob.builds) {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
-            echo "Older build still queued. Sending kill signal to ${build}"
+            echo "Older build still queued for ${jobName}. Sending kill signal to ${build}"
             build.doStop()
+            wait 5
             echo "${build.result}"
         }
     }
