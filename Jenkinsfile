@@ -1,3 +1,4 @@
+def jobCancelled = false
 def cancelPreviousBuilds() {
     def jobName = env.JOB_NAME
     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
@@ -9,9 +10,7 @@ def cancelPreviousBuilds() {
             echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
             build.doStop()
             //Verify job is stopped
-            sh """
-                curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result
-            """
+            jobCancelled = true
         }
     }
 }
@@ -25,6 +24,10 @@ pipeline {
         stage('Kill old builds - Commit 2') {
             steps {
                 cancelPreviousBuilds()
+                if (jobCancelled) 
+                    sh """
+                        curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result
+                    """
                 checkout scm
             }
         }
