@@ -9,7 +9,7 @@ def cancelPreviousBuilds() {
             echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
             build.doStop()
             sleep(5)
-            def isAborted = build.isBuilding()
+            def isAborted = !build.isBuilding()
             echo "${build} aborted?: ${isAborted}"
         }
     }
