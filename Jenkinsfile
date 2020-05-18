@@ -1,7 +1,6 @@
 def checkPreviousBuilds() {
-    def jobName = env.JOB_NAME
     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
-    def currentJob = Jenkins.instance.getItemByFullName(jobName)
+    def currentJob = Jenkins.instance.getItemByFullName(env.JOB_NAME)
     def jobCancelled = false
     
     for (def build : currentJob.builds) {
@@ -15,7 +14,7 @@ def checkPreviousBuilds() {
 }
 
 def cancelPreviousBuilds(build) {
-    echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
+    echo "Older build (${build.number}) still queued for ${env.JOB_NAME}. Sending kill signal to ${build}"
     build.doStop()
     sh "curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result"
 }
