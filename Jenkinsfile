@@ -8,7 +8,8 @@ def cancelPreviousBuilds() {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
             echo "Older build still queued. Sending kill signal to ${build}"
             build.doStop()
-            echo "${env.JENKINS_URL}/job/${env.JOB_NAME}/${build.number}/api/json"
+            sleep 5
+            echo "${build} result is now ${build.result}"
         }
     }
 }
