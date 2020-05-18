@@ -8,7 +8,7 @@ def cancelPreviousBuilds() {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
             echo "Older build still queued for ${jobName}. Sending kill signal to ${build}"
             build.doStop()
-            echo "${build.getBuildStatusSummary}"
+            echo "${build.isInProgress}"
         }
     }
 }
