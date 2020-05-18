@@ -9,7 +9,9 @@ def cancelPreviousBuilds() {
             echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
             build.doStop()
             //Verify job is stopped
-            try { sh script: 'curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result', label: 'Try to grab Jenkins build status' } catch(err) {}
+            sh """
+                curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result
+            """
         }
     }
 }
