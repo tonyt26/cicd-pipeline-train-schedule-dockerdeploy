@@ -1,18 +1,23 @@
-def jobCancelled = false
-def cancelPreviousBuilds() {
+def checkPreviousBuilds() {
     def jobName = env.JOB_NAME
     def currentBuildNumber = env.BUILD_NUMBER.toInteger()
     def currentJob = Jenkins.instance.getItemByFullName(jobName)
-    echo "Current job: ${currentJob}"
-    echo "build url: ${env.BUILD_URL}"
+    def jobCancelled = false
+    
     for (def build : currentJob.builds) {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
-            echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
-            build.doStop()
+            cancelPreviousBuilds(build)
+            //echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
+            //build.doStop()
             //Verify job is stopped
-            jobCancelled = true
         }
     }
+}
+
+def cancelPreviousBuilds(build) {
+    echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
+    build.doStop()
+    sh "curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result"
 }
 
 pipeline {
@@ -23,11 +28,7 @@ pipeline {
     stages {
         stage('Kill old builds - Commit 2') {
             steps {
-                cancelPreviousBuilds()
-                if (jobCancelled) 
-                    sh """
-                        curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result
-                    """
+                checkPreviousBuilds()
                 checkout scm
             }
         }
