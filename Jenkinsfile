@@ -8,8 +8,7 @@ def cancelPreviousBuilds() {
         if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
             echo "Older build still queued for ${jobName}. Sending kill signal to ${build}"
             build.doStop()
-            wait 5
-            echo "${build.result}"
+            curl ${BUILD_URL}api/xml?xpath=//result 
         }
     }
 }
