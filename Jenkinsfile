@@ -13,12 +13,12 @@ def cancel_previous_builds() {
 }
 
 def verify_build_abort () {
-  def build_url = cancel_previous_builds()
+  def buildUrl = cancel_previous_builds()
   sleep 3
-  def job_result_url = "${env.JENKINS_URL}${build_url}api/xml?xpath=//result"
-  def build_status = sh(returnStdout: true, script: "curl ${job_result_url}")
-  println(build_status)
-  if (build_status.contains("ABORTED"))
+  def jobResultUrl = "${env.JENKINS_URL}${buildUrl}api/xml?xpath=//result"
+  def buildStatus = sh(returnStdout: true, script: "curl ${jobResultUrl}")
+  println(buildStatus)
+  if (buildStatus.contains("ABORTED"))
     println "Successfully aborted."
 }
 
