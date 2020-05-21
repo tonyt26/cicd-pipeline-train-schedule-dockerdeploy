@@ -1,5 +1,5 @@
 @NonCPS
-def cancelPreviousBuilds() {
+def cancel_previous_builds() {
   def currentBuildNumber = env.BUILD_NUMBER.toInteger()
   def currentJob = Jenkins.instance.getItemByFullName(env.JOB_NAME)
     
@@ -27,7 +27,7 @@ pipeline {
     stages {
         stage('Kill old builds - Commit 2') {
             steps {
-                checkPreviousBuilds()
+                cancel_previous_builds()
                 checkout scm
             }
         }
