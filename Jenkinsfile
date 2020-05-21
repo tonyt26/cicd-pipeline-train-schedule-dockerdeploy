@@ -14,7 +14,7 @@ def cancel_previous_builds() {
 
 def verify_build_abort () {
   def abortedBuildUrl = cancel_previous_builds()
-  def jobResultUrl = "${env.JENKINS_URL}${buildUrl}api/xml?xpath=//result"
+  def jobResultUrl = "${env.JENKINS_URL}${abortedBuildUrl}api/xml?xpath=//result"
   
   sleep 3
   def buildStatus = sh(returnStdout: true, script: "curl ${jobResultUrl}")
