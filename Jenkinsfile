@@ -1,22 +1,22 @@
-def checkPreviousBuilds() {
-    def currentBuildNumber = env.BUILD_NUMBER.toInteger()
-    def currentJob = Jenkins.instance.getItemByFullName(env.JOB_NAME)
-    def jobCancelled = false
+@NonCPS
+def cancelPreviousBuilds() {
+  def currentBuildNumber = env.BUILD_NUMBER.toInteger()
+  def currentJob = Jenkins.instance.getItemByFullName(env.JOB_NAME)
     
-    for (def build : currentJob.builds) {
-        if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
-            cancelPreviousBuilds(build)
-            //echo "Older build (${build.number}) still queued for ${jobName}. Sending kill signal to ${build}"
-            //build.doStop()
-            //Verify job is stopped
-        }
+  for (def build : currentJob.builds) {
+    if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
+      echo "Older build (${build.number}) still queued for ${env.JOB_NAME}. Sending kill signal to ${build}"
+      build.doStop()
+      verify_build_abort(build.url)
     }
+  }
 }
 
-def cancelPreviousBuilds(build) {
-    echo "Older build (${build.number}) still queued for ${env.JOB_NAME}. Sending kill signal to ${build}"
-    build.doStop()
-    sh "curl ${env.JENKINS_URL}/${build.url}/api/xml?xpath=//result"
+def verify_build_abort (build_url) {
+  def job_result_url = "${env.JENKINS_URL}${build_url}api/xml?xpath=//result"
+  def build_status = sh(returnStdout: true, script: "curl ${job_result_url}")
+  if (build_status.contains("ABORTED"))
+    println "Successfully aborted."
 }
 
 pipeline {
