@@ -7,13 +7,14 @@ def cancel_previous_builds() {
     if (build.isBuilding() && (build.number.toInteger() < currentBuildNumber)) {
       echo "Older build (${build.number}) still queued for ${env.JOB_NAME}. Sending kill signal to ${build}"
       build.doStop()
-      verify_build_abort(build.url)
+      return build.url
     }
   }
 }
 
-def verify_build_abort (build_url) {
-  sleep 5
+def verify_build_abort () {
+  def build_url = cancel_previous_builds()
+  sleep 3
   def job_result_url = "${env.JENKINS_URL}${build_url}api/xml?xpath=//result"
   def build_status = sh(returnStdout: true, script: "curl ${job_result_url}")
   println(build_status)
@@ -29,7 +30,7 @@ pipeline {
     stages {
         stage('Kill old builds - Commit 2') {
             steps {
-                cancel_previous_builds()
+                verify_build_abort()
                 checkout scm
             }
         }
